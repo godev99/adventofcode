@@ -1,0 +1,111 @@
+package main
+
+import (
+	"embed"
+	"fmt"
+	"regexp"
+	"strings"
+
+	"golang.org/x/exp/slices"
+)
+
+//go:embed input.txt
+var myFileContent embed.FS
+
+func main() {
+
+	fmt.Println("Day 5: Doesn't He Have Intern-Elves For This?")
+	fmt.Println("Part2")
+	fmt.Println("")
+
+	var containsPairs bool
+	var niceStrings int
+
+	// get input from file
+	input, err := myFileContent.ReadFile("input.txt")
+	if err != nil {
+		fmt.Println("Error reading file:", err)
+		return
+	}
+
+	// split content by line
+	content := strings.Split(string(input), "\n")
+
+	for count, line := range content {
+		// check if it contains a pair of any two letters that appears at least twice in the string without overlapping
+		containsPairs = checkPairs(line, count, &niceStrings)
+
+		// check if it contains at least one letter which repeats with exactly one letter between them
+
+		if containsPairs {
+			niceStrings++
+		}
+	}
+
+	fmt.Println("")
+	fmt.Println("Nice strings:", niceStrings)
+}
+
+func checkPairs(line string, count int, nicestrings *int) bool {
+
+	var r *regexp.Regexp
+	var indexes [][]int
+	var regex string
+	var found bool
+	var fValue string
+	var fIndex, sIndex int
+	var uniqueChar string
+	var alreadyFound []string
+
+	for i := 0; i < len(line)-1; i++ {
+		found = false
+		regex = string(line[i]) + string(line[i+1])
+		r, _ = regexp.Compile(regex)
+		indexes = r.FindAllStringSubmatchIndex(line, 2)
+		if len(indexes) > 1 && !slices.Contains(alreadyFound, string(line[indexes[0][0]:indexes[0][1]])) {
+			fIndex = indexes[0][1]
+			sIndex = indexes[1][0]
+			fValue = string(line[indexes[0][0]:indexes[0][1]])
+			alreadyFound = append(alreadyFound, fValue)
+			fmt.Println("")
+			fmt.Println("nice strings:", *nicestrings)
+			fmt.Println("line number:", count)
+			fmt.Println("line value:", line)
+			fmt.Println("value found:", fValue)
+			fmt.Println("first index:", fIndex, "second index:", sIndex)
+			if sIndex-(fIndex) > 0 {
+				fmt.Println("remaining chars len:", sIndex-(fIndex))
+				fmt.Println("remaining chars:", string(line[fIndex:sIndex]))
+				found, uniqueChar = checkUniqueChar(string(line[fIndex:sIndex]))
+				if found == true {
+					fmt.Println("unique char:", uniqueChar)
+					fmt.Println("nice string!")
+					return true
+				}
+			} else {
+				fmt.Println("no remaining char")
+			}
+		}
+	}
+
+	return false
+}
+
+func checkUniqueChar(remaining string) (bool, string) {
+	var unique int
+	for _, i := range remaining {
+		for _, j := range remaining {
+			//fmt.Println("i:", string(i), "j:", string(j))
+			if string(i) == string(j) {
+				//fmt.Println("unique++")
+				unique++
+			}
+		}
+		//fmt.Println("unique", unique)
+		if unique == 1 {
+			return true, string(i)
+		}
+		unique = 0
+	}
+	return false, ""
+}

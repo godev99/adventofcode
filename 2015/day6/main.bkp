@@ -1,0 +1,218 @@
+package main
+
+import (
+	"embed"
+	"fmt"
+	"strconv"
+	"strings"
+)
+
+//var grid [1000][1000]int
+
+// 568658 : too low
+
+type opRange struct {
+	startX int
+	endX   int
+	startY int
+	endY   int
+}
+
+func lightOn(lRange opRange, lGrid *[1000][1000]int) {
+
+	// local variables ordered
+	var lStartX, lStartY, lEndX, lEndY int
+
+	if lRange.startX >= lRange.endX {
+		lStartX = lRange.endX
+		lEndX = lRange.startX
+	} else {
+		lStartX = lRange.startX
+		lEndX = lRange.endX
+	}
+
+	if lRange.startY >= lRange.endY {
+		lStartY = lRange.endY
+		lEndY = lRange.startY
+	} else {
+		lStartY = lRange.startY
+		lEndY = lRange.endY
+	}
+
+	/*
+		fmt.Println("lStartX", lStartX)
+		fmt.Println("lEndX", lEndX)
+		fmt.Println("lStartY", lStartY)
+		fmt.Println("lEndY", lEndY)
+	*/
+
+	for y := lStartY; y < lEndY; y++ {
+		for x := lStartX; x < lEndX; x++ {
+			//fmt.Println("x", x)
+			//fmt.Println("y", y)
+			lGrid[x][y] = 1
+			//fmt.Println("lGrid[x][y]", lGrid[x][y])
+		}
+	}
+	//fmt.Println("MyGrid:", lGrid)
+}
+
+func lightOff(lRange opRange, lGrid *[1000][1000]int) {
+
+	// local variables ordered
+	var lStartX, lStartY, lEndX, lEndY int
+
+	if lRange.startX >= lRange.endX {
+		lStartX = lRange.endX
+		lEndX = lRange.startX
+	} else {
+		lStartX = lRange.startX
+		lEndX = lRange.endX
+	}
+
+	if lRange.startY >= lRange.endY {
+		lStartY = lRange.endY
+		lEndY = lRange.startY
+	} else {
+		lStartY = lRange.startY
+		lEndY = lRange.endY
+	}
+
+	/*
+		fmt.Println("lStartX", lStartX)
+		fmt.Println("lEndX", lEndX)
+		fmt.Println("lStartY", lStartY)
+		fmt.Println("lEndY", lEndY)
+	*/
+
+	for y := lStartY; y < lEndY; y++ {
+		for x := lStartX; x < lEndX; x++ {
+			//fmt.Println("x", x)
+			//fmt.Println("y", y)
+			lGrid[x][y] = 0
+			//fmt.Println("lGrid[x][y]", lGrid[x][y])
+		}
+	}
+	//fmt.Println("MyGrid:", lGrid)
+}
+
+func howManyLightOn(lGrid *[1000][1000]int) int {
+	var count int
+	for x := 0; x <= 999; x++ {
+		for y := 0; y <= 999; y++ {
+			if lGrid[x][y] == 1 {
+				count++
+			}
+		}
+	}
+	return count
+}
+
+func lightToggle(lRange opRange, lGrid *[1000][1000]int) {
+
+	// local variables ordered
+	var lStartX, lStartY, lEndX, lEndY int
+
+	if lRange.startX >= lRange.endX {
+		lStartX = lRange.endX
+		lEndX = lRange.startX
+	} else {
+		lStartX = lRange.startX
+		lEndX = lRange.endX
+	}
+
+	if lRange.startY >= lRange.endY {
+		lStartY = lRange.endY
+		lEndY = lRange.startY
+	} else {
+		lStartY = lRange.startY
+		lEndY = lRange.endY
+	}
+
+	/*
+		fmt.Println("lStartX", lStartX)
+		fmt.Println("lEndX", lEndX)
+		fmt.Println("lStartY", lStartY)
+		fmt.Println("lEndY", lEndY)
+	*/
+
+	for y := lStartY; y < lEndY; y++ {
+		for x := lStartX; x < lEndX; x++ {
+			//fmt.Println("x", x)
+			//fmt.Println("y", y)
+			if lGrid[x][y] == 0 {
+				lGrid[x][y] = 1
+			} else {
+				lGrid[x][y] = 0
+			}
+
+			//fmt.Println("lGrid[x][y]", lGrid[x][y])
+		}
+	}
+	//fmt.Println("MyGrid:", lGrid)
+}
+
+//go:embed input.txt
+var myFileContent embed.FS
+
+func main() {
+
+	var lightGrid [1000][1000]int
+	var lightRange opRange
+	var xTmpArray []string
+	var yTmpArray []string
+
+	var fields []string
+
+	// get input from file
+	input, err := myFileContent.ReadFile("input.txt")
+	if err != nil {
+		fmt.Println("Error reading file:", err)
+		return
+	}
+
+	// split content by line
+	content := strings.Split(string(input), "\n")
+
+	for _, line := range content {
+
+		fields = strings.Fields(line)
+
+		if len(fields) > 0 {
+			operation := fields[0] + fields[1]
+			//fmt.Println("operation:", operation)
+
+			switch operation {
+			case "turnon":
+				//fmt.Println("turn on")
+				xTmpArray = strings.Split(fields[2], ",")
+				yTmpArray = strings.Split(fields[4], ",")
+				lightRange.startX, _ = strconv.Atoi(xTmpArray[0])
+				lightRange.endX, _ = strconv.Atoi(yTmpArray[0])
+				lightRange.startY, _ = strconv.Atoi(xTmpArray[1])
+				lightRange.endY, _ = strconv.Atoi(yTmpArray[1])
+				lightOn(lightRange, &lightGrid)
+			case "turnoff":
+				//fmt.Println("turn off")
+				xTmpArray = strings.Split(fields[2], ",")
+				yTmpArray = strings.Split(fields[4], ",")
+				lightRange.startX, _ = strconv.Atoi(xTmpArray[0])
+				lightRange.endX, _ = strconv.Atoi(yTmpArray[0])
+				lightRange.startY, _ = strconv.Atoi(xTmpArray[1])
+				lightRange.endY, _ = strconv.Atoi(yTmpArray[1])
+				lightOff(lightRange, &lightGrid)
+			default:
+				//fmt.Println("toggle")
+				xTmpArray = strings.Split(fields[1], ",")
+				yTmpArray = strings.Split(fields[3], ",")
+				lightRange.startX, _ = strconv.Atoi(xTmpArray[0])
+				lightRange.endX, _ = strconv.Atoi(yTmpArray[0])
+				lightRange.startY, _ = strconv.Atoi(xTmpArray[1])
+				lightRange.endY, _ = strconv.Atoi(yTmpArray[1])
+				lightToggle(lightRange, &lightGrid)
+			}
+		}
+	}
+
+	fmt.Println("how many lights on :", howManyLightOn(&lightGrid))
+}

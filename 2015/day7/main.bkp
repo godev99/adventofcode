@@ -1,0 +1,92 @@
+package main
+
+import (
+	"embed"
+	"fmt"
+	"log/slog"
+	"strconv"
+	"strings"
+)
+
+//go:embed input.txt
+var myFileContent embed.FS
+
+// input.txt content
+var content []string
+
+// contains all wires
+var wireSlice map[string]int
+
+func init() {
+	// get input from file
+	input, err := myFileContent.ReadFile("input.txt")
+	if err != nil {
+		slog.Error("Error reading file:", err)
+		return
+	}
+
+	// split content by line
+	content = strings.Split(string(input), "\n")
+}
+
+func strToBinary(s string, base int) []byte {
+	var b []byte
+	for _, c := range s {
+		b = strconv.AppendInt(b, int64(c), base)
+	}
+	return b
+}
+
+func bitwiseOr(bin int) int {
+	tmp := strconv.FormatInt(int64(bin), 2)
+	tmp2, _ := strconv.Atoi(tmp)
+	tmp3 := ^tmp2
+
+	// convert binary to decimal
+
+	return tmp3
+}
+
+func main() {
+
+	var fields []string
+	var binary int
+
+	wireSlice = make(map[string]int)
+
+	for _, line := range content {
+
+		fields = strings.Fields(line)
+
+		switch len(fields) {
+		case 3:
+			wireSlice[fields[2]], _ = strconv.Atoi(fields[0])
+		case 4:
+			switch {
+			case strings.Contains(line, "NOT"):
+				binary = bitwiseOr(wireSlice[fields[1]])
+				fmt.Println("^wireSlice[fields[1]]", binary)
+				wireSlice[fields[3]] = binary
+			case strings.Contains(line, "OR"):
+				fmt.Println("wireSlice[fields[0]] | wireSlice[fields[2]]", wireSlice[fields[0]]|wireSlice[fields[2]])
+				wireSlice[fields[3]] = wireSlice[fields[0]] | wireSlice[fields[2]]
+			case strings.Contains(line, "AND"):
+				fmt.Println("wireSlice[fields[0]] & wireSlice[fields[2]]", wireSlice[fields[0]]&wireSlice[fields[2]])
+				wireSlice[fields[3]] = wireSlice[fields[0]] & wireSlice[fields[2]]
+
+			case strings.Contains(line, "LSHIFT"):
+				fmt.Println("wireSlice[fields[0]] << wireSlice[fields[2]]", wireSlice[fields[0]]<<wireSlice[fields[2]])
+				wireSlice[fields[3]] = wireSlice[fields[0]] << wireSlice[fields[2]]
+			case strings.Contains(line, "RSHIFT"):
+				fmt.Println("wireSlice[fields[0]] >> wireSlice[fields[2]]", wireSlice[fields[0]]>>wireSlice[fields[2]])
+				wireSlice[fields[3]] = wireSlice[fields[0]] >> wireSlice[fields[2]]
+			}
+		}
+
+	}
+
+	for key, value := range wireSlice {
+		fmt.Println("Key:", key, "Value:", value)
+	}
+
+}
